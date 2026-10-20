@@ -1,0 +1,26 @@
+POS LIBRE RESTAURANTE — PWA sin suscripción
+
+Archivos:
+- index.html: aplicación
+- manifest.webmanifest: datos para instalar en pantalla de inicio
+- sw.js: caché offline de la interfaz
+- icon-192.png e icon-512.png: iconos
+
+Publicación necesaria para iPhone:
+1. La aplicación debe servirse desde una URL HTTPS para que Safari pueda instalarla como web app y el service worker pueda funcionar.
+2. Una opción de alojamiento estático gratuito es GitHub Pages con un repositorio público. Al publicar, la URL será pública; no incluyas datos reales de clientes ni secretos en el repositorio.
+3. Sube todos los archivos a la raíz del repositorio y activa Pages en Settings > Pages.
+4. Abre la URL HTTPS en Safari en el iPhone > botón Compartir > Añadir a pantalla de inicio. Si aparece, activa “Abrir como app web” y pulsa Añadir.
+5. Abre la app al menos una vez con internet para que se guarde la interfaz para uso sin conexión.
+
+Datos:
+- Productos y pedidos se guardan en IndexedDB del navegador/dispositivo.
+- La interfaz se puede almacenar en caché para abrir sin internet después de la primera carga.
+- Los datos NO se sincronizan ni se incluyen en el alojamiento.
+- Haz copias de seguridad desde la sección Copias y guarda el archivo fuera del iPhone.
+
+Funciones:
+- Categorías, productos, precios, descripción/ingredientes, emoji, códigos y stock opcional.
+- Pedido para llevar, mesa o domicilio; método de pago, cambio y notas.
+- Historial, resumen diario, CSV y copia JSON.
+- No es facturación electrónica DIAN ni calcula impuestos.

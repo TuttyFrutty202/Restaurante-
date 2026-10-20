@@ -1,0 +1,25 @@
+{
+  "id": "./",
+  "name": "POS Libre Restaurante",
+  "short_name": "POS Libre",
+  "description": "Punto de venta local para restaurantes y comidas rápidas",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f6f3",
+  "theme_color": "#12372a",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
