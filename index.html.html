@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12372a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="POS Libre">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>TUTTY FRUTTY POS</title>
+<style>
+:root{--forest:#12372a;--green:#207653;--bg:#f2f6f3;--card:#fff;--ink:#1b2922;--muted:#64746b;--line:#dce6df;--red:#b42318;--cream:#fff8df}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:var(--forest);color:#fff;padding:16px 15px 12px;position:sticky;top:0;z-index:4;box-shadow:0 2px 8px #0002}
+.top{max-width:1050px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:10px}h1{font-size:21px;margin:0}header p{margin:2px 0 0;color:#d4e6dc;font-size:12px}.online{border:1px solid #ffffff55;border-radius:20px;padding:5px 8px;font-size:11px;white-space:nowrap}
+nav{max-width:1050px;margin:12px auto 0;display:flex;gap:7px;overflow:auto}nav button{border:1px solid #ffffff55;background:transparent;color:white;border-radius:10px;padding:9px 12px;white-space:nowrap;font-weight:700}nav button.active{background:#fff;color:var(--forest)}
+main{max-width:1050px;margin:auto;padding:13px;padding-bottom:42px}.view{display:none}.view.active{display:block}h2{font-size:21px;margin:5px 0 14px}h3{font-size:16px;margin:0 0 10px}
+.panel,.stat,.tile{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:13px;box-shadow:0 2px 8px #102d1d08}
+label{display:block;font-weight:700;font-size:13px;margin:10px 0 5px}input,select,textarea{font:inherit;width:100%;border:1px solid #cbd8d0;border-radius:10px;padding:11px;background:#fff;color:var(--ink);min-height:43px}textarea{min-height:70px;resize:vertical}
+button{font:inherit;cursor:pointer}.btn{border:0;border-radius:10px;background:var(--green);color:#fff;padding:11px 13px;min-height:42px;font-weight:750}.btn.secondary{background:#e7eee9;color:var(--forest)}.btn.danger{background:#fff0ee;color:var(--red)}.btn.small{font-size:12px;padding:7px 9px;min-height:32px}
+.row{display:flex;gap:9px;align-items:center}.row>*{flex:1;min-width:0}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.muted{font-size:13px;color:var(--muted)}.notice{padding:11px;background:var(--cream);border:1px solid #efdf9d;border-radius:11px;font-size:13px;margin-bottom:12px}
+.categories{display:flex;gap:7px;overflow:auto;margin:12px 0}.cat{border:1px solid var(--line);background:#fff;border-radius:99px;padding:8px 12px;white-space:nowrap;font-weight:700}.cat.active{background:var(--forest);color:#fff;border-color:var(--forest)}
+.menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.tile{text-align:left;display:flex;flex-direction:column;gap:5px;min-height:108px;color:var(--ink)}.tile .emoji{font-size:23px}.tile .price{font-weight:850;color:var(--green)}.tile .stock{font-size:12px;color:var(--muted)}
+.sale-layout{display:grid;grid-template-columns:1fr;gap:12px}.cart-line{display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--line);padding:10px 0}.desc{flex:1;min-width:0}.desc small{display:block;color:var(--muted)}.qty{display:flex;align-items:center;gap:6px}.qty button{width:29px;height:29px;border:1px solid var(--line);border-radius:8px;background:#f5f8f6}.totalrow{display:flex;justify-content:space-between;align-items:center;margin-top:10px}.totalrow strong{font-size:23px}.empty{border:1px dashed var(--line);border-radius:11px;padding:17px;text-align:center;color:var(--muted)}
+.gridstats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat small{display:block;color:var(--muted)}.stat strong{font-size:21px;display:block;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted)}.tablewrap{overflow:auto}.badge{font-size:11px;border-radius:99px;padding:3px 7px;background:#e6eee9;color:var(--forest)}
+#toast{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:20;background:#17251e;color:white;padding:11px 15px;border-radius:12px;max-width:90%;box-shadow:0 4px 18px #0003;text-align:center}
+@media print{header,nav,.actions,#pinGate{display:none!important}body{background:white}.view{display:none!important}#cierre{display:block!important}.panel,.stat{box-shadow:none;break-inside:avoid}}\nfooter{text-align:center;font-size:12px;color:var(--muted);padding:20px}
+
+#pinGate{position:fixed;inset:0;background:#12372a;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+#pinCard{width:min(100%,360px);background:#fff;border-radius:18px;padding:22px;box-shadow:0 12px 40px #0004;text-align:center}
+#pinCard h2{color:#12372a;margin:0 0 8px}#pinInput{text-align:center;font-size:28px;letter-spacing:10px;font-weight:800}
+.table-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.table-card{border:1px solid var(--line);border-radius:13px;background:white;padding:15px;text-align:left}.table-card strong{display:block;font-size:17px}.table-card small{color:var(--muted)}.table-card.busy{border-color:#d9a441;background:#fff8df}
+
+@media(min-width:720px){.sale-layout{grid-template-columns:1.1fr .9fr}.menu-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.gridstats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div id="pinGate">
+  <div id="pinCard">
+    <h2>TUTTY FRUTTY POS</h2>
+    <p id="pinMessage">Introduce tu PIN de 4 dígitos</p>
+    <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••" autocomplete="off">
+    <div class="actions"><button id="pinEnter" class="btn" style="flex:1">Entrar</button></div>
+    <p class="muted" id="pinHint">Primer uso: crea un PIN de 4 dígitos y vuelve a introducirlo para confirmarlo.</p>
+  </div>
+</div>
+<header><div class="top"><div><h1>TUTTY FRUTTY POS</h1><p>Pedidos, mesas y caja · COP</p></div><span class="online">● Datos locales</span></div>
+<nav><button class="active" data-view="venta">Vender</button><button data-view="mesas">Mesas</button><button data-view="menu">Menú</button><button data-view="historial">Ventas</button><button data-view="resumen">Resumen</button><button data-view="cierre">Cierre Z</button><button data-view="backup">Copias</button></nav></header>
+<main>
+<section id="venta" class="view active">
+<h2>Nuevo pedido</h2><div class="sale-layout">
+<div class="panel"><label for="buscar">Buscar en el menú</label><input id="buscar" placeholder="Producto o código…"><div id="categorias" class="categories"></div><div id="menuGrid" class="menu-grid"></div></div>
+<div class="panel"><h3>Pedido actual</h3><div id="cart"><div class="empty">Elige un producto del menú.</div></div>
+<div class="totalrow"><span>Total del pedido</span><strong id="total">$ 0</strong></div>
+<label for="tipoPedido">Tipo de pedido</label><select id="tipoPedido"><option>Para llevar</option><option>En mesa</option><option>Domicilio</option></select>
+<div id="mesaWrap" style="display:none"><label for="mesa">Mesa / referencia</label><input id="mesa" placeholder="Ej. Mesa 4 o dirección"></div>
+<label for="pago">Método de pago</label><select id="pago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Pendiente</option><option>Otro</option></select>
+<div id="cashWrap"><label for="recibido">Dinero recibido (COP)</label><input id="recibido" type="number" min="0" inputmode="numeric" placeholder="Ej. 20000"></div>
+<div class="totalrow"><span class="muted">Cambio</span><strong style="font-size:17px" id="cambio">$ 0</strong></div>
+<label for="nota">Observaciones de cocina (opcional)</label><textarea id="nota" placeholder="Sin cebolla, salsa aparte…"></textarea>
+<div class="actions"><button id="registrar" class="btn" style="flex:1">Registrar pedido</button><button id="vaciar" class="btn secondary">Vaciar</button></div>
+<p class="muted">Control interno de ventas; no es factura electrónica DIAN.</p></div></div>
+</section>
+<section id="mesas" class="view"><h2>Gestión de mesas</h2>
+<div class="notice">Selecciona una mesa para iniciar un pedido. El pedido se registra desde la pantalla Vender.</div>
+<div class="panel"><div class="row"><div><label for="numMesas">Número de mesas</label><input id="numMesas" type="number" min="1" max="50" value="10"></div><div style="align-self:end"><button id="actualizarMesas" class="btn">Actualizar mesas</button></div></div><div id="mesasGrid" class="table-cards" style="margin-top:12px"></div></div>
+</section>
+<section id="cierre" class="view"><h2>Cierre Z de caja</h2>
+<div class="notice">El cierre Z resume las ventas registradas en este dispositivo para el día seleccionado. Guarda una copia del resumen antes de cerrar.</div>
+<div class="panel"><label for="fechaCierre">Fecha del cierre</label><input id="fechaCierre" type="date"><div class="gridstats" style="margin-top:12px"><div class="stat"><small>Total vendido</small><strong id="zTotal">$ 0</strong></div><div class="stat"><small>Pedidos</small><strong id="zPedidos">0</strong></div><div class="stat"><small>Efectivo</small><strong id="zEfectivo">$ 0</strong></div><div class="stat"><small>Otros pagos</small><strong id="zOtros">$ 0</strong></div></div><div class="actions"><button id="verCierre" class="btn secondary">Calcular cierre</button><button id="guardarCierre" class="btn">Guardar cierre Z</button><button id="imprimirCierre" class="btn secondary">Imprimir / PDF</button></div><div id="cierreDetalle" style="margin-top:14px"></div></div>
+<div class="panel" style="margin-top:13px"><h3>Cierres guardados</h3><div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Pedidos</th><th>Total</th></tr></thead><tbody id="cierresGuardados"></tbody></table></div><p class="muted">Los cierres se guardan en este navegador. Exporta una copia de seguridad regularmente.</p></div>
+</section>
+<section id="menu" class="view"><h2>Administrar menú</h2>
+<div class="panel"><h3 id="formTitle">Añadir producto al menú</h3><input id="pid" type="hidden">
+<div class="row"><div><label for="nombre">Nombre *</label><input id="nombre" placeholder="Ej. Hamburguesa clásica"></div><div><label for="emoji">Icono</label><input id="emoji" maxlength="5" placeholder="🍔"></div></div>
+<div class="row"><div><label for="categoria">Categoría *</label><input id="categoria" list="cats" placeholder="Hamburguesas"><datalist id="cats"><option>Burgers</option><option>Perros calientes</option><option>Salchipapas</option><option>Combos</option><option>Entradas</option><option>Bebidas</option><option>Postres</option><option>Adicionales</option></datalist></div><div><label for="codigo">Código (opcional)</label><input id="codigo" placeholder="BAR-001"></div></div>
+<div class="row"><div><label for="precio">Precio de venta (COP) *</label><input id="precio" type="number" min="0" step="1" inputmode="numeric" placeholder="18000"></div><div><label for="stock">Existencias</label><input id="stock" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div></div>
+<label for="descripcion">Descripción / ingredientes</label><textarea id="descripcion" placeholder="Pan, carne, queso… (informativo)"></textarea>
+<div class="actions"><button id="guardar" class="btn">Guardar producto</button><button id="cancelar" class="btn secondary" hidden>Cancelar</button></div></div>
+<div class="panel" style="margin-top:13px"><div class="row"><h3 style="flex:1">Productos registrados</h3><input id="filtro" placeholder="Buscar…" style="max-width:180px"></div><div class="tablewrap"><table><thead><tr><th>Producto</th><th>Precio</th><th>Stock</th><th></th></tr></thead><tbody id="productos"></tbody></table></div><div id="sinProductos" class="empty">Añade tu primer producto arriba.</div></div>
+</section>
+<section id="historial" class="view"><h2>Historial de pedidos</h2><div class="panel"><div class="row"><p class="muted" style="flex:1">Pedidos guardados en este dispositivo.</p><button class="btn secondary small" id="csv">Exportar CSV</button></div><div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Pedido</th><th>Total</th><th>Pago</th></tr></thead><tbody id="ventas"></tbody></table></div><div id="sinVentas" class="empty">Todavía no hay pedidos.</div></div></section>
+<section id="resumen" class="view"><h2>Resumen del día</h2><div class="gridstats"><div class="stat"><small>Ventas registradas hoy</small><strong id="sVentas">$ 0</strong></div><div class="stat"><small>Pedidos de hoy</small><strong id="sPedidos">0</strong></div><div class="stat"><small>Productos del menú</small><strong id="sProductos">0</strong></div><div class="stat"><small>Unidades en inventario</small><strong id="sStock">0</strong></div></div><div class="panel" style="margin-top:13px"><h3>Nota</h3><p class="muted">El total vendido no es la utilidad. Esta versión no calcula costos, impuestos ni obligaciones tributarias.</p></div></section>
+<section id="backup" class="view"><h2>Copias de seguridad</h2><div class="notice"><strong>Importante:</strong> los datos se guardan en este navegador. Si borras sus datos o cambias de dispositivo, puedes perderlos. Exporta copias regularmente y guárdalas en otro lugar.</div>
+<div class="panel"><h3>Exportar copia completa</h3><p class="muted">Incluye productos, menú e historial de ventas.</p><button class="btn" id="backupOut">Descargar copia JSON</button></div>
+<div class="panel" style="margin-top:13px"><h3>Restaurar copia</h3><label for="backupFile">Archivo de copia JSON</label><input type="file" id="backupFile" accept=".json,application/json"><button class="btn secondary" id="backupIn" style="margin-top:9px">Restaurar copia</button></div>
+<div class="panel" style="margin-top:13px"><h3>Borrar todos los datos</h3><button class="btn danger" id="wipe">Borrar datos de este dispositivo</button></div></section>
+<footer>POS Libre · Versión inicial para restaurante · Pesos colombianos (COP)</footer>
+</main><div id="toast" role="status" aria-live="polite"></div>
+<script>
+const DB="pos-libre-restaurante",VER=1;let db,items=[],orders=[],cart=[],activeCat="Todos";
+const $=id=>document.getElementById(id), money=n=>new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(n)||0);
+function say(t){let e=$("toast");e.textContent=t;e.style.display="block";clearTimeout(say.t);say.t=setTimeout(()=>e.style.display="none",2600)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function openDB(){return new Promise((ok,no)=>{let r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{let d=r.result;d.createObjectStore("items",{keyPath:"id"});d.createObjectStore("orders",{keyPath:"id"})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
+function all(s){return new Promise((ok,no)=>{let r=db.transaction(s,"readonly").objectStore(s).getAll();r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
+function put(s,v){return new Promise((ok,no)=>{let t=db.transaction(s,"readwrite");t.objectStore(s).put(v);t.oncomplete=ok;t.onerror=()=>no(t.error)})}
+function clear(s){return new Promise((ok,no)=>{let t=db.transaction(s,"readwrite");t.objectStore(s).clear();t.oncomplete=ok;t.onerror=()=>no(t.error)})}
+function view(n){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id===n));document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.view===n))}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>view(b.dataset.view));
+function renderMenu(){let cats=["Todos",...new Set(items.map(p=>p.category).filter(Boolean).sort())];if(!cats.includes(activeCat))activeCat="Todos";$("categorias").innerHTML=cats.map(c=>`<button class="cat ${c===activeCat?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{activeCat=b.dataset.cat;renderMenu()});let q=$("buscar").value.trim().toLowerCase();let list=items.filter(p=>(activeCat==="Todos"||p.category===activeCat)&&(p.name+" "+p.code+" "+p.category).toLowerCase().includes(q));$("menuGrid").innerHTML=list.map(p=>`<button class="tile" data-add="${p.id}"><span class="emoji">${esc(p.emoji||"🍽️")}</span><strong>${esc(p.name)}</strong><span class="price">${money(p.price)}</span><span class="stock">${p.stock===null?"Sin control de stock":"Stock: "+p.stock}</span></button>`).join("")||'<div class="empty" style="grid-column:1/-1">No hay productos. Añádelos en Menú.</div>';document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>add(b.dataset.add))}
+function renderProducts(){let q=$("filtro").value.toLowerCase();let list=items.filter(p=>(p.name+" "+p.category+" "+p.code).toLowerCase().includes(q));$("productos").innerHTML=list.map(p=>`<tr><td>${esc(p.emoji||"🍽️")} <strong>${esc(p.name)}</strong><br><span class="muted">${esc(p.category)}${p.description?" · "+esc(p.description):""}</span></td><td>${money(p.price)}</td><td>${p.stock===null?"—":p.stock}</td><td><button class="btn secondary small" data-edit="${p.id}">Editar</button> <button class="btn danger small" data-delete="${p.id}">Borrar</button></td></tr>`).join("");$("sinProductos").style.display=list.length?"none":"block";document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>edit(b.dataset.edit));document.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>del(b.dataset.delete))}
+function add(id){let p=items.find(x=>x.id===id);if(!p)return;let l=cart.find(x=>x.productId===id);if(p.stock!==null&&(p.stock<(l?.qty||0)+1)){say("No hay existencias suficientes");return}if(l)l.qty++;else cart.push({productId:p.id,name:p.name,price:p.price,qty:1,category:p.category});renderCart()}
+function qty(id,d){let l=cart.find(x=>x.productId===id);if(!l)return;let n=l.qty+d,p=items.find(x=>x.id===id);if(n>0&&p?.stock!==null&&p&&n>p.stock){say("Stock insuficiente");return}if(n<=0)cart=cart.filter(x=>x.productId!==id);else l.qty=n;renderCart()}
+function renderCart(){if(!cart.length)$("cart").innerHTML='<div class="empty">Elige un producto del menú.</div>';else{$("cart").innerHTML=cart.map(l=>`<div class="cart-line"><div class="desc"><strong>${esc(l.name)}</strong><small>${money(l.price)} c/u</small></div><div class="qty"><button data-minus="${l.productId}">−</button><strong>${l.qty}</strong><button data-plus="${l.productId}">+</button></div><strong>${money(l.price*l.qty)}</strong></div>`).join("");document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>qty(b.dataset.minus,-1));document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>qty(b.dataset.plus,1))}$("total").textContent=money(cart.reduce((s,l)=>s+l.price*l.qty,0));change()}
+function change(){$("cashWrap").style.display=$("pago").value==="Efectivo"?"block":"none";let total=cart.reduce((s,l)=>s+l.price*l.qty,0),cash=Number($("recibido").value)||0;$("cambio").textContent=money($("pago").value==="Efectivo"?Math.max(0,cash-total):0)}
+$("buscar").oninput=renderMenu;$("filtro").oninput=renderProducts;$("pago").onchange=change;$("recibido").oninput=change;$("tipoPedido").onchange=()=>{$("mesaWrap").style.display=$("tipoPedido").value==="En mesa"?"block":"none"};
+function resetForm(){["pid","nombre","emoji","categoria","codigo","precio","stock","descripcion"].forEach(x=>$(x).value="");$("formTitle").textContent="Añadir producto al menú";$("cancelar").hidden=true}
+$("cancelar").onclick=resetForm;
+$("guardar").onclick=async()=>{let id=$("pid").value||crypto.randomUUID(),name=$("nombre").value.trim(),category=$("categoria").value.trim(),price=Number($("precio").value),stockText=$("stock").value.trim(),stock=stockText===""?null:Number(stockText),code=$("codigo").value.trim();if(!name||!category||$("precio").value===""||!Number.isFinite(price)||price<0){say("Completa nombre, categoría y precio válido");return}if(stock!==null&&(!Number.isInteger(stock)||stock<0)){say("Stock debe ser entero o dejarse vacío");return}if(code&&items.some(p=>p.code===code&&p.id!==id)){say("Ese código ya existe");return}await put("items",{id,name,category,price:Math.round(price),stock,code,emoji:$("emoji").value.trim()||"🍽️",description:$("descripcion").value.trim()});resetForm();await refresh();say("Producto guardado")};
+function edit(id){let p=items.find(x=>x.id===id);if(!p)return;$("pid").value=p.id;$("nombre").value=p.name;$("categoria").value=p.category;$("precio").value=p.price;$("stock").value=p.stock===null?"":p.stock;$("codigo").value=p.code||"";$("emoji").value=p.emoji||"";$("descripcion").value=p.description||"";$("formTitle").textContent="Editar producto";$("cancelar").hidden=false;window.scrollTo({top:0,behavior:"smooth"})}
+async function del(id){let p=items.find(x=>x.id===id);if(p&&confirm(`¿Borrar ${p.name}?`)){await new Promise((ok,no)=>{let t=db.transaction("items","readwrite");t.objectStore("items").delete(id);t.oncomplete=ok;t.onerror=()=>no(t.error)});cart=cart.filter(x=>x.productId!==id);await refresh();say("Producto borrado")}}
+$("registrar").onclick=async()=>{if(!cart.length){say("El pedido está vacío");return}let total=cart.reduce((s,l)=>s+l.price*l.qty,0),pay=$("pago").value,cash=Number($("recibido").value)||0;if(pay==="Efectivo"&&cash<total){say("El efectivo recibido no alcanza");return}for(let l of cart){let p=items.find(x=>x.id===l.productId);if(!p||(p.stock!==null&&p.stock<l.qty)){say("Revisa el stock de "+l.name);return}}let order={id:crypto.randomUUID(),date:new Date().toISOString(),items:cart.map(x=>({...x})),total,payment:pay,received:pay==="Efectivo"?cash:null,change:pay==="Efectivo"?cash-total:0,type:$("tipoPedido").value,table:$("mesa").value.trim(),note:$("nota").value.trim()};try{let t=db.transaction(["items","orders"],"readwrite");for(let l of order.items){let p=items.find(x=>x.id===l.productId);if(p.stock!==null)t.objectStore("items").put({...p,stock:p.stock-l.qty})}t.objectStore("orders").put(order);await new Promise((ok,no)=>{t.oncomplete=ok;t.onerror=()=>no(t.error);t.onabort=()=>no(t.error)});cart=[];$("recibido").value="";$("nota").value="";$("mesa").value="";await refresh();say("Pedido registrado")}catch(e){say("No se pudo guardar el pedido")}};
+$("vaciar").onclick=()=>{cart=[];renderCart()};
+function renderOrders(){$("ventas").innerHTML=orders.map(o=>`<tr><td>${new Date(o.date).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"})}</td><td><strong>${esc(o.type)}</strong>${o.table?" · "+esc(o.table):""}<br>${o.items.map(i=>esc(i.name)+" × "+i.qty).join("<br>")}${o.note?"<br><span class=muted>"+esc(o.note)+"</span>":""}</td><td><strong>${money(o.total)}</strong></td><td>${esc(o.payment)}</td></tr>`).join("");$("sinVentas").style.display=orders.length?"none":"block"}
+function summary(){let d=new Date().toLocaleDateString("en-CA"),today=orders.filter(o=>new Date(o.date).toLocaleDateString("en-CA")===d);$("sVentas").textContent=money(today.reduce((s,o)=>s+o.total,0));$("sPedidos").textContent=today.length;$("sProductos").textContent=items.length;$("sStock").textContent=items.reduce((s,p)=>s+(p.stock||0),0)}
+async function refresh(){items=(await all("items")).sort((a,b)=>a.name.localeCompare(b.name,"es"));orders=(await all("orders")).sort((a,b)=>b.date.localeCompare(a.date));renderMenu();renderProducts();renderCart();renderOrders();summary();if($("mesasGrid"))renderTables();if($("fechaCierre"))renderZ()}
+function download(name,content,type){let u=URL.createObjectURL(new Blob([content],{type})),a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1200)}
+$("backupOut").onclick=async()=>download("pos-restaurante-copia.json",JSON.stringify({app:"POS-Libre-Restaurante",version:1,items:await all("items"),orders:await all("orders")},null,2),"application/json");
+$("backupIn").onclick=async()=>{let f=$("backupFile").files[0];if(!f){say("Elige una copia JSON");return}try{let d=JSON.parse(await f.text());if(d.app!=="POS-Libre-Restaurante"||!Array.isArray(d.items)||!Array.isArray(d.orders))throw 0;if(!confirm("Esto reemplaza los datos actuales. ¿Continuar?"))return;await clear("items");await clear("orders");for(let x of d.items)await put("items",x);for(let x of d.orders)await put("orders",x);cart=[];await refresh();say("Copia restaurada")}catch(e){say("Archivo de copia inválido")}};
+$("csv").onclick=()=>{let rows=[["Fecha","Tipo","Detalle","Total COP","Pago","Observaciones"],...orders.map(o=>[new Date(o.date).toLocaleString("es-CO"),o.type,o.items.map(i=>i.name+" x"+i.qty).join("; "),o.total,o.payment,o.note||""])];download("ventas-restaurante.csv","\ufeff"+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\r\n"),"text/csv;charset=utf-8")};
+$("wipe").onclick=async()=>{if(confirm("¿Borrar todos los productos y pedidos de este navegador?")&&confirm("Esta acción no se puede deshacer. ¿Ya guardaste una copia?")){await clear("items");await clear("orders");cart=[];await refresh();say("Datos borrados")}};
+(async()=>{try{db=await openDB();await refresh()}catch(e){say("No se pudo iniciar la base local")}})();
+
+// PIN local de 4 dígitos (control básico del acceso en este dispositivo)
+const PIN_KEY="tutty-frutty-pos-pin-v1";
+function pinSetupState(){return localStorage.getItem(PIN_KEY)}
+function initPin(){
+  const gate=$("pinGate"), input=$("pinInput"), msg=$("pinMessage"), hint=$("pinHint"), btn=$("pinEnter");
+  let setup=!pinSetupState(), firstPin="";
+  msg.textContent=setup?"Crea tu PIN de 4 dígitos":"Introduce tu PIN de 4 dígitos";
+  hint.textContent=setup?"Primer uso: escribe un PIN de 4 dígitos y vuelve a introducirlo para confirmarlo.":"El PIN protege el acceso en este navegador.";
+  btn.onclick=()=>{
+    const v=input.value.trim();
+    if(!/^\d{4}$/.test(v)){say("El PIN debe tener exactamente 4 números");input.value="";return}
+    if(setup && !firstPin){firstPin=v;msg.textContent="Confirma tu PIN";hint.textContent="Vuelve a escribir el mismo PIN.";input.value="";return}
+    if(setup){if(v!==firstPin){firstPin="";msg.textContent="Crea tu PIN de 4 dígitos";hint.textContent="Los PIN no coinciden. Inténtalo otra vez.";input.value="";return}localStorage.setItem(PIN_KEY,v);setup=false;gate.style.display="none";say("PIN configurado");return}
+    if(v===pinSetupState()){gate.style.display="none";input.value="";}else{say("PIN incorrecto");input.value=""}
+  };
+  input.addEventListener("keydown",e=>{if(e.key==="Enter")btn.click()});
+  gate.style.display="flex";
+}
+function localDateKey(d=new Date()){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return `${y}-${m}-${day}`}
+function getOrdersForDate(date){return orders.filter(o=>localDateKey(new Date(o.date))===date)}
+function renderTables(){
+  const count=Math.max(1,Math.min(50,Number($("numMesas").value)||10));
+  const todays=getOrdersForDate(localDateKey());
+  const busy=new Set(todays.filter(o=>o.type==="En mesa"&&o.table).map(o=>o.table));
+  $("mesasGrid").innerHTML=Array.from({length:count},(_,i)=>{const name=`Mesa ${i+1}`,isBusy=busy.has(name);return `<button class="table-card ${isBusy?"busy":""}" data-table="${name}"><strong>${name}</strong><small>${isBusy?"Con pedidos hoy":"Disponible para nuevo pedido"}</small></button>`}).join("");
+  document.querySelectorAll("[data-table]").forEach(b=>b.onclick=()=>{$("tipoPedido").value="En mesa";$("mesa").value=b.dataset.table;$("mesaWrap").style.display="block";view("venta");say(`${b.dataset.table} seleccionada`)});
+}
+function renderZ(){
+  const date=$("fechaCierre").value||localDateKey(), list=getOrdersForDate(date);
+  const total=list.reduce((s,o)=>s+Number(o.total||0),0);
+  const cash=list.filter(o=>o.payment==="Efectivo").reduce((s,o)=>s+Number(o.total||0),0);
+  const other=total-cash;
+  $("zTotal").textContent=money(total);$("zPedidos").textContent=String(list.length);$("zEfectivo").textContent=money(cash);$("zOtros").textContent=money(other);
+  $("cierreDetalle").innerHTML=list.length?`<h3>Detalle del día ${esc(date)}</h3><div class="tablewrap"><table><thead><tr><th>Hora</th><th>Pedido</th><th>Pago</th><th>Total</th></tr></thead><tbody>${list.map(o=>`<tr><td>${new Date(o.date).toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"})}</td><td>${esc(o.type)}${o.table?" · "+esc(o.table):""}<br>${o.items.map(i=>esc(i.name)+" × "+i.qty).join("<br>")}</td><td>${esc(o.payment)}</td><td>${money(o.total)}</td></tr>`).join("")}</tbody></table></div>`:'<div class="empty">No hay pedidos registrados para esta fecha.</div>';
+  const saved=JSON.parse(localStorage.getItem("tutty-frutty-cierres-z")||"[]").sort((a,b)=>b.date.localeCompare(a.date));
+  $("cierresGuardados").innerHTML=saved.map(c=>`<tr><td>${esc(c.date)}</td><td>${c.orders}</td><td>${money(c.total)}</td></tr>`).join("")||'<tr><td colspan="3">Todavía no hay cierres guardados.</td></tr>';
+  return {date,orders:list.length,total,cash,other};
+}
+$("actualizarMesas").onclick=renderTables;
+$("fechaCierre").value=localDateKey();
+$("verCierre").onclick=()=>{renderZ();say("Cierre calculado")};
+$("guardarCierre").onclick=()=>{const z=renderZ();let saved=JSON.parse(localStorage.getItem("tutty-frutty-cierres-z")||"[]");if(saved.some(c=>c.date===z.date)){if(!confirm("Ya existe un cierre para esta fecha. ¿Quieres reemplazarlo?"))return;saved=saved.filter(c=>c.date!==z.date)}saved.push({...z,savedAt:new Date().toISOString()});localStorage.setItem("tutty-frutty-cierres-z",JSON.stringify(saved));renderZ();say("Cierre Z guardado")};
+$("imprimirCierre").onclick=()=>{renderZ();window.print()};
+$("fechaCierre").onchange=renderZ;
+
+initPin();
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
+</script></body></html>
